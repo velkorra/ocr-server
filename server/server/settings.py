@@ -37,6 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'ocr',
+    'rest_framework',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -47,7 +50,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware'
 ]
+
+REST_FRAMEWORK = {'DEFAULT_PERMISSION-CLASSES': ['rest_framework_permissions.AllowAny']}
+
+
+CORS_ORIGIN_ALLOW_ALL= True
 
 ROOT_URLCONF = 'server.urls'
 
@@ -76,17 +85,17 @@ WSGI_APPLICATION = 'server.wsgi.application'
 DATABASES = {
 'default': {
 
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
 
-        'NAME': 'ocr',
+        'NAME': 'railway',
 
         'USER': 'postgres',
 
-        'PASSWORD': 'postgres',
+        'PASSWORD': 'tcVBrxCGEmXZlAYIFhbYcrbJYvEzDQcW',
 
-        'HOST': '127.0.0.1',
+        'HOST': 'monorail.proxy.rlwy.net',
 
-        'PORT': '5080',
+        'PORT': '24627',
 
     }
 
