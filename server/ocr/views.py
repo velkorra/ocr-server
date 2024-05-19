@@ -1,4 +1,5 @@
 from django.shortcuts import render
+import docx.api
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -9,6 +10,21 @@ from django.db.models import Q
 import os
 from PIL import Image
 import pytesseract
+import docx
+from docx.api import Document 
+from django.http import HttpResponse
+from django.core.files.base import ContentFile
+import io
+from unidecode import unidecode
+from .recognition.recognition import recognize
+
+class DownloadWordDocumentView(APIView):
+    def get(self, request, *args, **kwargs):
+        filename = 'media/' + str(OCRDocument.objects.latest('id').file)
+        with open(filename, 'rb') as doc:
+            response = HttpResponse(doc.read(), content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+            response['Content-Disposition'] = f'attachment; filename="{unidecode(filename.split('/')[-1])}"'
+            return response
 
 class DocumentView(APIView):
     def get(self, request):
@@ -18,19 +34,14 @@ class DocumentView(APIView):
         if not file_obj:
             return Response({'error': 'Файл не предоставлен'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Начальный обработчик изображения без сохранения файла на диск
-        image = Image.open(file_obj)
-        text = pytesseract.image_to_string(image, lang='rus')
-
-        # Создание и сохранение нового документа в базу данных
+        file, text, file_name = recognize(file_obj)
+        
         document = OCRDocument.objects.create(
             name = file_obj.name,
             text = text,
-            # Здесь мы сохраняем изображение напрямую без создания временного файла.
-            # file_obj - это InMemoryUploadedFile, который можно непосредственно сохранить в ImageField
+            file=file,
             image = file_obj
         )
-
-        return Response({'message': text, 'document_id': document.pk}, status=status.HTTP_201_CREATED)
+        return Response({'message': text, 'document_name': file_name}, status=status.HTTP_201_CREATED)
     
     
