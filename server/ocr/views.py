@@ -18,6 +18,23 @@ import io
 from unidecode import unidecode
 from .recognition.recognition import recognize
 
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+morgan = """
+Моргана родилась как настоящая, признанная дочь короля Утера. Хотя она была старшей сестрой и имела такой же статус, в глазах Морганы Артурия получила любовь и надежды их отца, заставив её в конечном счете стать королевой-ведьмой, жаждущей мести всю оставшуюся часть её дней. Во время обучения Артурии Моргана устроила ловушку, и из-за распутства Мерлина, Артурия попалась в неё и потеряла Калибурн. Как только Камелот был построен, она отправилась в уединение. Она посла туда Агравейна в качестве убийцы. Она была феей озера и полной злой противоположностью Вивиан, Владычицы Озера."""
+@csrf_exempt  # Отключаем CSRF для демонстрации, в продакшене используйте токены CSRF
+def upload_image(request):
+    if request.method == "POST":
+        image_file = request.FILES.get('image')
+        if image_file:
+            with open('media/images/' + image_file.name, 'wb+') as destination:
+                for chunk in image_file.chunks():
+                    destination.write(chunk)
+            return JsonResponse({'status': 'success', 'image_id': morgan}, status=200)
+        else:
+            return JsonResponse({'status': 'error', 'message': 'No image provided'}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
 class DownloadWordDocumentView(APIView):
     def get(self, request, *args, **kwargs):
         filename = 'media/' + str(OCRDocument.objects.latest('id').file)

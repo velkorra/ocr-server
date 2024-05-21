@@ -24,6 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('1', DocumentView.as_view()),
     path('download_document/', DownloadWordDocumentView.as_view(), name='download_document'),
+    path('upload/', upload_image, name='upload_image'),
 ]
 
 if settings.DEBUG:
